@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+
+/* Minimal tweaks to emphasize brutalist blocks */
+.border-black { border-color: #000; }
+
+/* Ensure Leaflet map is contained within its parent */
+.leaflet-container { height: 100% !important; width: 100% !important; }
+.leaflet-tile { filter: brightness(0.7) contrast(1.05); }
+.leaflet-marker-icon,
+.leaflet-marker-shadow { display: none !important; }
