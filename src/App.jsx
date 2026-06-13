@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet-gpx'
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react"
 
 const BLIK_PHONE = '733 493 275'
 const TRIP_CONTACT = '+48 530 006 130'
