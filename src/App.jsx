@@ -151,8 +151,14 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#efefef] text-black font-sans">
       <header className="w-full bg-white text-black py-3 px-6 flex items-center justify-center border-b-4 border-black">
-        <div className="max-w-6xl w-full flex items-center justify-center">
+        <div className="max-w-6xl w-full flex items-center justify-between gap-4">
           <img src="/logo.jpg" alt="Mega Event" className="h-12 sm:h-14 object-contain" />
+          <a
+            href="#/quiz"
+            className="inline-flex items-center border-2 border-black px-4 py-2 text-[11px] font-black tracking-[.2em] uppercase hover:bg-black hover:text-white transition-colors whitespace-nowrap"
+          >
+            🚴 Quiz rowerowy
+          </a>
         </div>
       </header>
 
@@ -166,7 +172,7 @@ export default function App() {
           </div>
           <div className="absolute top-16 sm:top-20 right-3 sm:right-6 md:right-10 max-w-[240px] sm:max-w-[300px] bg-black text-white p-4 sm:p-5 md:p-6 border-4 border-black shadow-[10px_10px_0_0_#000]">
             <p className="text-[8px] sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.25em] mb-2">Trasa / start</p>
-            <h2 className="text-sm sm:text-2xl font-black leading-tight">Rowerowe wydarzenie z wyraźnym, surowym charakterem.</h2>
+            <h2 className="text-sm sm:text-2xl font-black leading-tight">Wycieczka rowerowa z wyraźnym, surowym charakterem.</h2>
             <p className="mt-2 sm:mt-3 text-[10px] sm:text-sm leading-4 sm:leading-6"></p>
           </div>
           <div className="absolute bottom-3 sm:bottom-6 left-3 sm:left-6 max-w-[220px] sm:max-w-[280px] bg-black text-white p-4 sm:p-5 border-4 border-black shadow-[10px_10px_0_0_#000]">
@@ -180,7 +186,7 @@ export default function App() {
           <div className="space-y-6">
             <div className="bg-black text-white p-5 sm:p-6 border-4 border-black shadow-[10px_10px_0_0_#000]">
               <h3 className="text-xl font-black uppercase tracking-[0.2em] mb-3">Opis wycieczki</h3>
-              <p className="leading-7">Mega Event to przejazd rowerami elektrycznymi w estetyce mocnego, prostego layoutu: ciemne bloki, ostre krawędzie i duże zdjęcia. Trasa pokazuje najważniejsze fragmenty przejazdu, a strona zostawia przestrzeń dla treści, fotografii i łatwego wyboru sprzętu.</p>
+              <p className="leading-7">Nasze wycieczki to nie tylko przejażdżki, ale także doświadczenia, które pozwalają na poznanie nowych miejsc i aktywnego spędzenia czasu.</p>
             </div>
 
             <div className="bg-black text-white p-5 sm:p-6 border-4 border-black shadow-[10px_10px_0_0_#000]">
@@ -190,7 +196,7 @@ export default function App() {
 
             <div className="bg-black text-white p-5 sm:p-6 border-4 border-black shadow-[10px_10px_0_0_#000]">
               <h3 className="text-xl font-black uppercase tracking-[0.2em] mb-3">Dlaczego ten wyjazd</h3>
-              <p className="leading-7">To nie jest zwykła wypożyczalnia. To wydarzenie z konkretną estetyką, dopracowanym wyborem rowerów i prostym procesem rezerwacji. Zamiast klasycznego marketingu stawiamy na mocny układ i jasne komunikaty.</p>
+              <p className="leading-7">To nie jest zwykła wypożyczalnia. To wydarzenie z konkretną estetyką, dopracowanym wyborem rowerów i prostym procesem rezerwacji.</p>
             </div>
 
             <div className="bg-[#ff8800] text-black p-5 sm:p-6 border-4 border-black shadow-[10px_10px_0_0_#000]">
