@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Rowerowy – Mega Event 2026</title>
+  <meta name="description" content="20-pytaniowy quiz rowerowy Mega Event 2026. Sprawdź swoją wiedzę o kolarstwie!" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #efefef;
+      font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+      color: #000;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ── */
+    header {
+      width: 100%;
+      background: #fff;
+      border-bottom: 4px solid #000;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    header a {
+      text-decoration: none;
+      color: inherit;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      border: 2px solid #000;
+      padding: 6px 14px;
+      transition: background .15s, color .15s;
+    }
+    header a:hover { background: #000; color: #fff; }
+    header img { height: 48px; object-fit: contain; }
+    .header-inner {
+      max-width: 960px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    /* ── Layout ── */
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      background: #fff;
+      border: 4px solid #000;
+      box-shadow: 8px 8px 0 0 #000;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .progress-bar-bg {
+      background: #efefef;
+      border: 2px solid #000;
+      height: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      background: #ff8800;
+      height: 100%;
+      transition: width .5s cubic-bezier(.4,0,.2,1);
+    }
+    .score-badge {
+      background: #000;
+      color: #fff;
+      padding: 4px 12px;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: .1em;
+    }
+
+    /* ── Question card ── */
+    .question-card {
+      background: #fff;
+      border: 4px solid #000;
+      box-shadow: 10px 10px 0 0 #000;
+      padding: 28px 28px 24px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .question-number {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: #ff8800;
+      margin-bottom: 10px;
+    }
+    .question-text {
+      font-size: clamp(16px, 2.5vw, 20px);
+      font-weight: 900;
+      line-height: 1.4;
+      margin-bottom: 24px;
+    }
+
+    /* ── Answers ── */
+    .answers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 600px) {
+      .answers { grid-template-columns: 1fr; }
+    }
+
+    .answer-btn {
+      width: 100%;
+      text-align: left;
+      background: #fff;
+      border: 3px solid #000;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      position: relative;
+      transition: background .12s, color .12s, transform .12s, box-shadow .12s;
+      box-shadow: 4px 4px 0 0 #000;
+      line-height: 1.4;
+      letter-spacing: .01em;
+    }
+    .answer-btn:hover:not(:disabled) {
+      background: #000;
+      color: #fff;
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 0 #ff8800;
+    }
+    .answer-btn:active:not(:disabled) {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 0 #000;
+    }
+
+    /* ── Answer states after reveal ── */
+    .answer-btn.correct {
+      background: #000;
+      color: #fff;
+      border-color: #000;
+      box-shadow: 6px 6px 0 0 #ff8800;
+      animation: correctPop .45s cubic-bezier(.2,1.4,.4,1) forwards;
+    }
+    .answer-btn.wrong {
+      background: #efefef;
+      color: #999;
+      border-color: #999;
+      box-shadow: 4px 4px 0 0 #ccc;
+      text-decoration: line-through;
+      animation: wrongShake .4s ease forwards;
+    }
+    .answer-btn.selected-wrong {
+      background: #ff4444;
+      color: #fff;
+      border-color: #cc0000;
+      box-shadow: 4px 4px 0 0 #cc0000;
+      animation: wrongShake .4s ease forwards;
+    }
+    .answer-btn:disabled { cursor: default; }
+
+    /* ── Answer result icon ── */
+    .answer-btn .result-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%) scale(0);
+      font-size: 20px;
+      transition: transform .25s cubic-bezier(.2,1.4,.4,1) .1s;
+    }
+    .answer-btn.correct .result-icon,
+    .answer-btn.selected-wrong .result-icon { transform: translateY(-50%) scale(1); }
+
+    /* ── Feedback bar ── */
+    .feedback {
+      margin-top: 16px;
+      padding: 14px 18px;
+      border: 3px solid #000;
+      font-weight: 900;
+      font-size: 15px;
+      letter-spacing: .05em;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .3s ease .1s, transform .3s ease .1s;
+    }
+    .feedback.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .feedback.ok  { background: #000; color: #fff; border-color: #000; }
+    .feedback.err { background: #ff8800; color: #000; border-color: #000; }
+
+    /* ── Next button ── */
+    .next-btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 16px;
+      background: #ff8800;
+      color: #000;
+      border: 4px solid #000;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 8px 8px 0 0 #000;
+      transition: transform .12s, box-shadow .12s, background .12s;
+      display: none;
+    }
+    .next-btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 10px 10px 0 0 #000;
+    }
+    .next-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 4px 4px 0 0 #000;
+    }
+    .next-btn.show { display: block; animation: fadeSlideUp .35s ease forwards; }
+
+    /* ── End screen ── */
+    #end-screen {
+      display: none;
+      text-align: center;
+    }
+    #end-screen.show { display: block; animation: fadeSlideUp .5s ease forwards; }
+
+    .end-card {
+      background: #000;
+      color: #fff;
+      border: 4px solid #000;
+      box-shadow: 12px 12px 0 0 #ff8800;
+      padding: 48px 32px;
+      margin-bottom: 24px;
+    }
+    .end-title {
+      font-size: clamp(22px, 4vw, 36px);
+      font-weight: 900;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .end-emoji {
+      font-size: clamp(48px, 8vw, 80px);
+      margin-bottom: 20px;
+      display: block;
+      animation: pop .6s cubic-bezier(.2,1.4,.4,1) .2s both;
+    }
+    .end-score {
+      font-size: clamp(52px, 10vw, 96px);
+      font-weight: 900;
+      color: #ff8800;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .end-max {
+      font-size: 18px;
+      letter-spacing: .1em;
+      opacity: .6;
+      margin-bottom: 24px;
+    }
+    .end-message {
+      font-size: clamp(15px, 2vw, 18px);
+      font-weight: 700;
+      line-height: 1.5;
+      max-width: 500px;
+      margin: 0 auto;
+      opacity: .85;
+    }
+    .restart-btn {
+      display: inline-block;
+      padding: 18px 40px;
+      background: #ff8800;
+      color: #000;
+      border: 4px solid #000;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 8px 8px 0 0 #fff;
+      transition: transform .12s, box-shadow .12s;
+      margin-top: 8px;
+    }
+    .restart-btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 10px 10px 0 0 #fff;
+    }
+    .restart-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 4px 4px 0 0 #fff;
+    }
+
+    /* ── Quiz wrapper ── */
+    #quiz-wrap { position: relative; }
+    .question-slide {
+      animation: fadeSlideIn .4s cubic-bezier(.4,0,.2,1) forwards;
+    }
+
+    /* ── Keyframes ── */
+    @keyframes correctPop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+    @keyframes wrongShake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-6px); }
+      40%      { transform: translateX(6px); }
+      60%      { transform: translateX(-4px); }
+      80%      { transform: translateX(4px); }
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateX(24px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pop {
+      from { transform: scale(.4); opacity: 0; }
+      70%  { transform: scale(1.2); }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── Responsive tweaks ── */
+    @media (max-width: 480px) {
+      .question-card { padding: 20px 16px 18px; }
+      .answer-btn { font-size: 14px; padding: 12px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="/logo.jpg" alt="Mega Event" onerror="this.style.display='none'" />
+    <a href="/">← Wróć na stronę główną</a>
+  </div>
+</header>
+
+<main>
+  <!-- Progress -->
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-label">
+      <span id="progress-text">Pytanie 1 / 20</span>
+      <span class="score-badge" id="score-text">Punkty: 0</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div id="quiz-wrap"></div>
+
+  <!-- End screen -->
+  <div id="end-screen">
+    <div class="end-card">
+      <span class="end-emoji" id="end-emoji">🚴</span>
+      <div class="end-title">Koniec quizu!</div>
+      <div class="end-score" id="end-score">0</div>
+      <div class="end-max">/ 20 punktów</div>
+      <div class="end-message" id="end-message"></div>
+    </div>
+    <button class="restart-btn" onclick="restartQuiz()">🔄 Zacznij od nowa</button>
+  </div>
+</main>
+
+<script>
+/* ────────────────────────────────────────────
+   PYTANIA – wszystkie 20 zakodowane na stałe
+──────────────────────────────────────────── */
+const QUESTIONS = [
+  {
+    q: "W słynnym wyścigu Tour de France lider klasyfikacji generalnej nosi żółtą koszulkę (maillot jaune). Kto ją otrzymuje?",
+    answers: [
+      "Zawodnik, który wygrał najwięcej etapów.",
+      "Zawodnik z najkrótszym łącznym czasem przejazdu.",
+      "Najlepszy góral wyścigu.",
+      "Najszybszy sprinter na lotnych premiach.",
+    ],
+    correct: 1
+  },
+  {
+    q: "Co w kolarstwie górskim oznacza skrót XC?",
+    answers: [
+      "Extreme Climbing.",
+      "Cross-Country.",
+      "X-Treme Cycle.",
+      "X-Country Enduro.",
+    ],
+    correct: 1
+  },
+  {
+    q: "Czym charakteryzuje się tzw. „indeksowanie" w nowoczesnych przerzutkach rowerowych?",
+    answers: [
+      "Możliwością zmiany kilku biegów naraz.",
+      "Automatycznym doborem przełożenia przez komputer.",
+      "Jedno kliknięcie manetki odpowiada dokładnie jednej zmianie biegu.",
+      "Płynną regulacją oporu bez konkretnych stopni.",
+    ],
+    correct: 2
+  },
+  {
+    q: "W kontekście wypraw rowerowych, co jest główną zaletą zestawu „bikepacking" nad tradycyjnymi sakwami na bagażniku?",
+    answers: [
+      "Znacznie większa pojemność bagażowa.",
+      "Lepsze właściwości jezdne w trudnym terenie i mniejszy opór powietrza.",
+      "Możliwość przewożenia sztywnych i ciężkich przedmiotów.",
+      "Niższy koszt zakupu całego zestawu.",
+    ],
+    correct: 1
+  },
+  {
+    q: "Jak nazywa się pięć najbardziej prestiżowych, jednodniowych wyścigów klasycznych w kolarstwie szosowym?",
+    answers: [
+      "Grand Toury.",
+      "Wielkie Szlemy.",
+      "Monumenty.",
+      "Klasyki Narodowe.",
+    ],
+    correct: 2
+  },
+  {
+    q: "System MIPS stosowany w nowoczesnych kaskach rowerowych ma na celu:",
+    answers: [
+      "Zwiększenie wentylacji głowy podczas upałów.",
+      "Redukcję sił rotacyjnych działających na mózg podczas uderzenia.",
+      "Automatyczne powiadamianie służb o wypadku.",
+      "Zmniejszenie wagi kasku o ponad 10%.",
+    ],
+    correct: 1
+  },
+  {
+    q: "W geometrii ramy rowerowej parametr „Reach" oznacza:",
+    answers: [
+      "Odległość w poziomie między środkiem suportu a środkiem góry rury sterowej.",
+      "Długość rury podsiodłowej.",
+      "Całkowitą długość roweru od osi do osi kół.",
+      "Prześwit między ramą a kroczem kolarza.",
+    ],
+    correct: 0
+  },
+  {
+    q: "Dlaczego w kolarstwie górskim (MTB) coraz częściej rezygnuje się z przedniej przerzutki na rzecz napędów 1× (np. 1×12)?",
+    answers: [
+      "Aby zwiększyć liczbę dostępnych przełożeń.",
+      "Większa prostota, niższa waga i mniejsze ryzyko spadnięcia łańcucha.",
+      "Ze względu na mniejszy koszt łańcuchów do takich napędów.",
+      "Ponieważ tylne przerzutki stały się mniejsze.",
+    ],
+    correct: 1
+  },
+  {
+    q: "Co jest główną korzyścią z przejścia na system bezdętkowy (Tubeless) w rowerze?",
+    answers: [
+      "Brak konieczności pompowania kół przed jazdą.",
+      "Możliwość jazdy na niższym ciśnieniu bez ryzyka „dobicia" dętki.",
+      "Całkowita odporność opony na rozcięcia boczne.",
+      "Zmniejszenie oporu powietrza koła.",
+    ],
+    correct: 1
+  },
+  {
+    q: "Kto uznawany jest za wynalazcę pierwowzoru roweru, tzw. „maszyny biegowej" (drezyny) z 1817 roku?",
+    answers: [
+      "Leonardo da Vinci.",
+      "Karl von Drais.",
+      "James Starley.",
+      "Michaux Pierre.",
+    ],
+    correct: 1
+  },
+  {
+    q: "W hamulcach tarczowych hydraulicznych, medium przenoszącym siłę z klamki na klocki jest:",
+    answers: [
+      "Stalowa linka w pancerzu.",
+      "Płyn hamulcowy lub olej mineralny.",
+      "Skompresowane powietrze.",
+      "Przewód elektryczny wysyłający sygnał do zacisku.",
+    ],
+    correct: 1
+  },
+  {
+    q: "Czym jest tzw. „torba wewnątrz trójkąta ramy" (frame bag) w ekwipunku wyprawowym?",
+    answers: [
+      "Małą torebką na narzędzia pod siodełkiem.",
+      "Torbą montowaną wewnątrz głównego trójkąta ramy, idealną na ciężkie przedmioty.",
+      "Plecakiem ze stelażem rowerowym.",
+      "Sakwą montowaną na przednim widelcu.",
+    ],
+    correct: 1
+  },
+  {
+    q: "Parametr FTP (Functional Threshold Power), kluczowy dla treningu kolarskiego, oznacza:",
+    answers: [
+      "Najwyższą moc chwilową (sprint).",
+      "Maksymalną średnią moc, jaką kolarz jest w stanie utrzymać przez godzinę.",
+      "Najniższe tętno spoczynkowe zawodnika.",
+      "Średnią prędkość uzyskaną na dystansie 100 km.",
+    ],
+    correct: 1
+  },
+  {
+    q: "O ile w przybliżeniu zmniejsza się opór powietrza kolarza jadącego bezpośrednio za innym zawodnikiem (tzw. jazda na kole)?",
+    answers: [
+      "O ok. 5%–10%.",
+      "O ok. 30%–40%.",
+      "O dokładnie 50%.",
+      "Opór się nie zmienia, kolarz oszczędza tylko psychikę.",
+    ],
+    correct: 1
+  },
+  {
+    q: "Do czego służy narzędzie zwane „skuwaczem"?",
+    answers: [
+      "Do prostowania skrzywionej tarczy hamulcowej.",
+      "Do rozpinania i spinania ogniw łańcucha.",
+      "Do dokręcania szprych w kole.",
+      "Do montażu misek suportu w ramie.",
+    ],
+    correct: 1
+  },
+  {
+    q: "Jaki format pliku jest najpowszechniej używany do wgrywania tras do nawigacji rowerowych (np. Garmin, Wahoo)?",
+    answers: [
+      ".PDF",
+      ".GPX",
+      ".MP4",
+      ".JPEG",
+    ],
+    correct: 1
+  },
+  {
+    q: "Czym charakteryzuje się nowoczesny rower typu Gravel?",
+    answers: [
+      "Brakiem jakiejkolwiek amortyzacji i bardzo wąskimi oponami.",
+      "Barankiem (kierownicą szosową) i szerokimi oponami z bieżnikiem.",
+      "Prostą kierownicą i kołami o rozmiarze 26 cali.",
+      "Jest to rower przeznaczony wyłącznie do jazdy po torze kolarskim.",
+    ],
+    correct: 1
+  },
+  {
+    q: "Pojęcie „Dutch Reach" (holenderski chwyt) odnosi się do bezpieczeństwa i polega na:",
+    answers: [
+      "Hamowaniu obiema klamkami jednocześnie w sytuacjach awaryjnych.",
+      "Otwieraniu drzwi samochodu ręką dalszą od klamki, by spojrzeć przez ramię na nadjeżdżających rowerzystów.",
+      "Trzymaniu kierownicy obiema rękami podczas jazdy po kostce brukowej.",
+      "Sposobie montażu dzwonka rowerowego po lewej stronie.",
+    ],
+    correct: 1
+  },
+  {
+    q: "W Tour de France najwyższa kategoria trudności podjazdu to:",
+    answers: [
+      "Kategoria 1.",
+      "Kategoria 4.",
+      "HC (Hors Catégorie).",
+      "Ultra-Catégorie.",
+    ],
+    correct: 2
+  },
+  {
+    q: "Które komponenty tworzą tzw. „grupę osprzętu" w rowerze?",
+    answers: [
+      "Rama, widelec i stery.",
+      "Przerzutki, manetki, hamulce, korba, kaseta i łańcuch.",
+      "Koła, opony i dętki.",
+      "Kierownica, mostek i sztyca podsiodłowa.",
+    ],
+    correct: 1
+  },
+];
+
+/* ── State ── */
+let currentQ  = 0;
+let score     = 0;
+let answered  = false;
+
+/* ── DOM refs ── */
+const quizWrap    = document.getElementById('quiz-wrap');
+const endScreen   = document.getElementById('end-screen');
+const progressBar = document.getElementById('progress-bar');
+const progressTxt = document.getElementById('progress-text');
+const scoreTxt    = document.getElementById('score-text');
+
+/* ── Render a question ── */
+function renderQuestion() {
+  const data = QUESTIONS[currentQ];
+  answered   = false;
+
+  // Update progress
+  const pct = (currentQ / QUESTIONS.length) * 100;
+  progressBar.style.width = pct + '%';
+  progressTxt.textContent = `Pytanie ${currentQ + 1} / ${QUESTIONS.length}`;
+  scoreTxt.textContent    = `Punkty: ${score}`;
+
+  // Letter labels
+  const letters = ['A', 'B', 'C', 'D'];
+
+  // Build HTML
+  const buttonsHtml = data.answers.map((ans, i) => `
+    <button
+      class="answer-btn"
+      id="ans-${i}"
+      onclick="selectAnswer(${i})"
+      aria-label="Odpowiedź ${letters[i]}: ${ans}"
+    >
+      <strong>${letters[i]})</strong> ${ans}
+      <span class="result-icon" aria-hidden="true"></span>
+    </button>
+  `).join('');
+
+  quizWrap.innerHTML = `
+    <div class="question-card question-slide" id="q-card">
+      <div class="question-number">Pytanie ${currentQ + 1} / ${QUESTIONS.length}</div>
+      <div class="question-text">${data.q}</div>
+      <div class="answers">${buttonsHtml}</div>
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">
+        ${currentQ < QUESTIONS.length - 1 ? 'Następne pytanie →' : 'Zobacz wyniki 🏁'}
+      </button>
+    </div>
+  `;
+}
+
+/* ── Handle answer selection ── */
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const data     = QUESTIONS[currentQ];
+  const correct  = data.correct;
+  const feedback = document.getElementById('feedback');
+  const nextBtn  = document.getElementById('next-btn');
+
+  // Disable all buttons
+  document.querySelectorAll('.answer-btn').forEach(btn => btn.disabled = true);
+
+  // Mark correct answer
+  const correctBtn = document.getElementById(`ans-${correct}`);
+  correctBtn.classList.add('correct');
+  correctBtn.querySelector('.result-icon').textContent = '✓';
+
+  if (idx === correct) {
+    score++;
+    scoreTxt.textContent = `Punkty: ${score}`;
+    feedback.textContent = '✔ Świetnie! Poprawna odpowiedź!';
+    feedback.className   = 'feedback ok';
+  } else {
+    // Mark selected as wrong
+    const selectedBtn = document.getElementById(`ans-${idx}`);
+    selectedBtn.classList.add('selected-wrong');
+    selectedBtn.querySelector('.result-icon').textContent = '✗';
+    // Grey out others
+    document.querySelectorAll('.answer-btn').forEach((btn, i) => {
+      if (i !== idx && i !== correct) btn.classList.add('wrong');
+    });
+    feedback.textContent = '✘ Niestety, to nie ta odpowiedź.';
+    feedback.className   = 'feedback err';
+  }
+
+  // Animate feedback & next button
+  requestAnimationFrame(() => {
+    feedback.classList.add('visible');
+    nextBtn.classList.add('show');
+  });
+}
+
+/* ── Advance to next question or show results ── */
+function nextQuestion() {
+  currentQ++;
+  if (currentQ < QUESTIONS.length) {
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+/* ── Final results screen ── */
+function showResults() {
+  document.getElementById('progress-wrap').style.display = 'none';
+  quizWrap.style.display = 'none';
+
+  const pct = score / QUESTIONS.length;
+  let emoji, message;
+
+  if (pct === 1) {
+    emoji   = '🏆';
+    message = 'Niesamowite! Perfekcyjny wynik! Jesteś prawdziwym ekspertem rowerowym!';
+  } else if (pct >= 0.8) {
+    emoji   = '🥇';
+    message = 'Rewelacyjny wynik! Twoja wiedza kolarska jest na bardzo wysokim poziomie!';
+  } else if (pct >= 0.6) {
+    emoji   = '🚴';
+    message = 'Dobry wynik! Znasz się na kolarstwie – warto jednak doczytać kilka szczegółów!';
+  } else if (pct >= 0.4) {
+    emoji   = '⚙️';
+    message = 'Solidna podstawa! Trochę więcej czasu na szlaku i quizy pójdą znacznie lepiej!';
+  } else {
+    emoji   = '🔧';
+    message = 'Czas na trening! Każdy zaczyna od zera – wróć i spróbuj jeszcze raz!';
+  }
+
+  document.getElementById('end-emoji').textContent   = emoji;
+  document.getElementById('end-score').textContent   = score;
+  document.getElementById('end-message').textContent = message;
+
+  // Final progress bar = 100%
+  progressBar.style.width     = '100%';
+  progressTxt.textContent     = `Koniec! ${QUESTIONS.length} / ${QUESTIONS.length}`;
+  document.getElementById('progress-wrap').style.display = 'block';
+  scoreTxt.textContent = `Punkty: ${score}`;
+
+  endScreen.style.display = 'block';
+  requestAnimationFrame(() => endScreen.classList.add('show'));
+}
+
+/* ── Restart ── */
+function restartQuiz() {
+  currentQ = 0;
+  score    = 0;
+
+  endScreen.classList.remove('show');
+  endScreen.style.display = 'none';
+  quizWrap.style.display  = 'block';
+  document.getElementById('progress-wrap').style.display = 'block';
+
+  renderQuestion();
+}
+
+/* ── Boot ── */
+renderQuestion();
+</script>
+
+</body>
+</html>
